@@ -7,5 +7,6 @@ public:
   SharedPtr &operator=(const SharedPtr &);
   T &        operator*() const;
   T *        operator->() const;
+  bool       operator==(const T &) const;
   size_t     count() const;
 };
