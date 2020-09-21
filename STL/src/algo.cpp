@@ -81,10 +81,15 @@ void printAll(const ProductList &pl)
             << std::endl;
   std::cout << "Printing out all products..." << std::endl;
   std::cout << "----------------------------" << std::endl;
-  for (ProductList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)
+
+  std::ostream_iterator<Product> plItr (std::cout, "\n");
+  std::copy(pl.begin(), pl.end(), plItr);
+
+
+  /* for (ProductList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)
   {
     std::cout << *iter << std::endl;
-  }
+  } */
   std::cout << "##################################################"
             << std::endl;
 }
@@ -92,7 +97,24 @@ void printAll(const ProductList &pl)
 /**
    Add item
 */
-void addItem(ProductList &pl) {}
+void addItem(ProductList &pl) 
+{
+  std::string productName;
+  float price;
+  unsigned int sold;
+
+  std::cout << "Please enter name for new Item: ";
+  std::cin >> productName;
+
+  std::cout << std::endl << "Please enter price for: " << productName << " ";
+  std::cin >> price;
+
+  std::cout << std::endl << "Please enter quantity sold: ";
+  std::cin >> sold;
+
+  Product P(productName, price, sold);
+  pl.push_back(P);
+}
 
 /**
    Write data to db file
