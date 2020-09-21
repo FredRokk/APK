@@ -6,7 +6,7 @@ public:
   explicit SharedPtr(T *t = nullptr)
   {
     ptr_ = t;
-    count_ = new count();
+    new count_ = count();
     if (ptr_)
     {
       count_++;
