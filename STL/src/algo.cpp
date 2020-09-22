@@ -119,7 +119,14 @@ void addItem(ProductList &pl)
 /**
    Write data to db file
 */
-void productDBWrite(const ProductList &pl, const std::string &fileName) {}
+void productDBWrite(const ProductList &pl, const std::string &fileName)
+{
+  std::vector<Product> tempVec;
+  productDBRead(tempVec, fileName);
+  tempVec.insert(tempVec.end(), pl.begin(), pl.end());
+  std::ofstream pFile(fileName.c_str());
+  std::copy(tempVec.begin(), tempVec.end(), std::ostream_iterator<Product>(pFile, "\n"));
+}
 
 /**
  * Print poorly selling products
