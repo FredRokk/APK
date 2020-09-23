@@ -59,8 +59,8 @@ void productDBRead(ProductList &pl, const std::string &fileName)
 {
   pl.clear();
   std::ifstream pFile(fileName.c_str());
- /*  if(pFile)
-    std::cout << "opened" << std::endl; */
+  /*  if(pFile)
+     std::cout << "opened" << std::endl; */
   std::istream_iterator<Product> fileItr(pFile);
   std::istream_iterator<Product> eos;
   /* while (!pFile.eof())
@@ -82,11 +82,11 @@ void printAll(const ProductList &pl)
   std::cout << "Printing out all products..." << std::endl;
   std::cout << "----------------------------" << std::endl;
 
-  std::ostream_iterator<Product> plItr (std::cout, "\n");
+  std::ostream_iterator<Product> plItr(std::cout, "\n");
   std::copy(pl.begin(), pl.end(), plItr);
 
-
-  /* for (ProductList::const_iterator iter = pl.begin(); iter != pl.end(); ++iter)
+  /* for (ProductList::const_iterator iter = pl.begin(); iter != pl.end();
+  ++iter)
   {
     std::cout << *iter << std::endl;
   } */
@@ -97,10 +97,10 @@ void printAll(const ProductList &pl)
 /**
    Add item
 */
-void addItem(ProductList &pl) 
+void addItem(ProductList &pl)
 {
-  std::string productName;
-  float price;
+  std::string  productName;
+  float        price;
   unsigned int sold;
 
   std::cout << "Please enter name for new Item: ";
@@ -121,17 +121,25 @@ void addItem(ProductList &pl)
 */
 void productDBWrite(const ProductList &pl, const std::string &fileName)
 {
-  std::vector<Product> tempVec;
-  productDBRead(tempVec, fileName);
-  tempVec.insert(tempVec.end(), pl.begin(), pl.end());
   std::ofstream pFile(fileName.c_str());
-  std::copy(tempVec.begin(), tempVec.end(), std::ostream_iterator<Product>(pFile, "\n"));
+  std::copy(pl.begin(), pl.end(), std::ostream_iterator<Product>(pFile, "\n"));
 }
 
 /**
  * Print poorly selling products
  */
-void printPoorlySellingProducts(const ProductList &pl) {}
+void printPoorlySellingProducts(const ProductList &pl)
+{
+  std::cout << "##################################################"
+            << std::endl;
+  std::cout << "Printing out bad selling products..." << std::endl;
+  std::cout << "----------------------------" << std::endl;
+
+  std::remove_copy_if(pl.begin(), pl.end(), std::ostream_iterator<Product>(std::cout, "\n"), [](Product p) { return p.sold() >= 9; });
+
+  std::cout << "##################################################"
+            << std::endl;
+}
 
 /**
  * Set a discount on all products - Using for_each()
