@@ -135,7 +135,9 @@ void printPoorlySellingProducts(const ProductList &pl)
   std::cout << "Printing out bad selling products..." << std::endl;
   std::cout << "----------------------------" << std::endl;
 
-  std::remove_copy_if(pl.begin(), pl.end(), std::ostream_iterator<Product>(std::cout, "\n"), [](Product p) { return p.sold() >= 9; });
+  std::remove_copy_if(pl.begin(), pl.end(),
+                      std::ostream_iterator<Product>(std::cout, "\n"),
+                      [](Product p) { return p.sold() >= 9; });
 
   std::cout << "##################################################"
             << std::endl;
@@ -144,7 +146,11 @@ void printPoorlySellingProducts(const ProductList &pl)
 /**
  * Set a discount on all products - Using for_each()
  */
-void addDiscountUsingForEach(ProductList &pl) {}
+void addDiscountUsingForEach(ProductList &pl)
+{
+  std::for_each(pl.begin(), pl.end(),
+                [](Product &p) { p.setPrice(p.price() * 0.9); });
+}
 
 /**
  * Set a discount on all products - Using transform()

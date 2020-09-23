@@ -8,7 +8,7 @@
             "name": "g++ - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "bin/host/prog.exe",
+            "program": "/home/stud/APK/STL/bin/host/prog.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
