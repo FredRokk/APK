@@ -8,11 +8,11 @@
 #include <iterator>
 
 #include <algorithm>
+#include <cassert>
 #include <functional>
 #include <numeric>
 #include <string>
 #include <vector>
-#include <cassert>
 
 #define PRODUCT_DB_FILE "src/product.db"
 
@@ -176,9 +176,9 @@ void addDiscountUsingTransform(ProductList &pl)
     int discount;
     std::cout << "Pleace inter discount percentage: ";
     std::cin >> discount;
-    discount  = clamp(discount, 10, 90);
-    float multiplier = (100 - (float)discount)/100;
-    float price_f = (p.price()*multiplier);
+    discount         = clamp(discount, 10, 90);
+    float multiplier = (100 - (float)discount) / 100;
+    float price_f    = (p.price() * multiplier);
     p.setPrice(price_f);
     return p;
   });
@@ -187,7 +187,17 @@ void addDiscountUsingTransform(ProductList &pl)
 /**
  * Calculate the total amount of sold products
  */
-void calcTotalSoldProducts(ProductList &pl) {}
+void calcTotalSoldProducts(ProductList &pl)
+{
+  std::cout << "##################################################"
+            << std::endl;
+  std::cout << "Total amount of products sold: "
+            << std::accumulate(
+                   pl.begin(), pl.end(), 0,
+                   [](int &last, Product &p) { return last + p.sold(); })
+            << std::endl;
+  std::cout << "----------------------------" << std::endl;
+}
 
 /**
  * Setting discount using bind2nd - OPTIONAL
