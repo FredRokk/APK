@@ -12,6 +12,7 @@
 #include <numeric>
 #include <string>
 #include <vector>
+#include <cassert>
 
 #define PRODUCT_DB_FILE "src/product.db"
 
@@ -50,6 +51,18 @@ std::ostream &operator<<(std::ostream &o, const Product &p)
 std::istream &operator>>(std::istream &i, Product &p)
 {
   return i >> p.name_ >> p.price_ >> p.sold_;
+}
+
+template <class T, class Compare>
+constexpr const T &clamp(const T &v, const T &lo, const T &hi, Compare comp)
+{
+  return assert(!comp(hi, lo)), comp(v, lo) ? lo : comp(hi, v) ? hi : v;
+}
+
+template <class T>
+constexpr const T &clamp(const T &v, const T &lo, const T &hi)
+{
+  return ::clamp(v, lo, hi, std::less<>());
 }
 
 /**
@@ -106,10 +119,10 @@ void addItem(ProductList &pl)
   std::cout << "Please enter name for new Item: ";
   std::cin >> productName;
 
-  std::cout << std::endl << "Please enter price for: " << productName << " ";
+  std::cout << "Please enter price for: " << productName << " ";
   std::cin >> price;
 
-  std::cout << std::endl << "Please enter quantity sold: ";
+  std::cout << "Please enter quantity sold: ";
   std::cin >> sold;
 
   Product P(productName, price, sold);
@@ -155,7 +168,21 @@ void addDiscountUsingForEach(ProductList &pl)
 /**
  * Set a discount on all products - Using transform()
  */
-void addDiscountUsingTransform(ProductList &pl) {}
+void addDiscountUsingTransform(ProductList &pl)
+{
+  std::vector<Product> tempVec(pl.size());
+  std::copy(pl.begin(), pl.end(), std::back_inserter(tempVec));
+  std::transform(pl.begin(), pl.end(), tempVec.begin(), [](Product &p) {
+    int discount;
+    std::cout << "Pleace inter discount percentage: ";
+    std::cin >> discount;
+    discount  = clamp(discount, 10, 90);
+    float multiplier = (100 - (float)discount)/100;
+    float price_f = (p.price()*multiplier);
+    p.setPrice(price_f);
+    return p;
+  });
+}
 
 /**
  * Calculate the total amount of sold products
