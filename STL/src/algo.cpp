@@ -8,11 +8,11 @@
 #include <iterator>
 
 #include <algorithm>
+#include <cassert>
 #include <functional>
 #include <numeric>
 #include <string>
 #include <vector>
-#include <cassert>
 
 #define PRODUCT_DB_FILE "src/product.db"
 
@@ -176,9 +176,9 @@ void addDiscountUsingTransform(ProductList &pl)
     int discount;
     std::cout << "Pleace inter discount percentage: ";
     std::cin >> discount;
-    discount  = clamp(discount, 10, 90);
-    float multiplier = (100 - (float)discount)/100;
-    float price_f = (p.price()*multiplier);
+    discount         = clamp(discount, 10, 90);
+    float multiplier = (100 - (float)discount) / 100;
+    float price_f    = (p.price() * multiplier);
     p.setPrice(price_f);
     return p;
   });
