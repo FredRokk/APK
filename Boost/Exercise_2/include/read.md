@@ -1,3 +1,7 @@
+# This file is only for git pushing
+*Also* **This** is a ***Markdown*** demo
+## Code Preview
+```c++
 #include <boost/type_index.hpp>
 #include <boost/variant.hpp>
 #include <iostream>
@@ -28,3 +32,4 @@ int main()
 
   std::for_each(vec.begin(), vec.end(), boost::apply_visitor(visitor));
 }
+```
