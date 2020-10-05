@@ -3,3 +3,5 @@ STL/.vscode/launch.json
 STL/.vscode/settings.json
 STL/.vscode/tasks.json
 Boost/.vscode/settings.json
+TimerCallback/.vscode/settings.json
+Exceptions/.vscode/c_cpp_properties.json
