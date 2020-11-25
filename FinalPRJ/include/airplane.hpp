@@ -19,7 +19,7 @@ class airplane
 {
 private:
   const std::string tailNumber_;
-  // std::vector<passenger> passengers_;
+  std::vector<passenger> passengers_;
   std::string destination_, position_;
   bool isTaxi_, isTakingOff_, isTouchingDown_;
 
@@ -30,8 +30,8 @@ public:
   bool takeOff(){};
   bool touchDown(){};
   bool taxi(){};
-  // void fill(std::vector<passenger> passengers);
-  // void unload(std::vector<passenger> passengers);
+  void fill(std::vector<passenger> passengers){/*To be coded*/};
+  void unload(std::vector<passenger> passengers){/*To be coded*/};
   void        setPosition(std::string position) { position_ = position; };
   std::string getPosition() const { return position_; };
   friend std::ostream &operator<<(std::ostream &os, const airplane &ap)

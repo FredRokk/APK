@@ -17,19 +17,26 @@
 + getBagage() : void
 + giveBagage() : void
 */
+#ifndef _PASSENGER_
+#define _PASSENGER_
 #include "bagage.hpp"
 #include <string>
-template <int ID, int BagageId, int BagageWeight> class passenger
+template <int ID, int BagageWeight> class passenger
 {
 private:
-  const std::string name_;
+  const std::string name_, destination_;
   const int         id_;
   bagage            bagage_;
 
 public:
-  passenger(std::string name)
-      : name_(name), id_(ID), bagage_(BagageId, BagageWeight){};
+  passenger(std::string name, std::string destination)
+      : name_(name), id_(ID), bagage_(ID, BagageWeight), destination_(destination);{};
   ~passenger(){};
-  void getBagage(){};
-  void giveBagage(){};
+  void        receiveBagage(){/*To be coded*/};
+  void        giveBagage(){/*To be coded*/};
+  std::string getName() const { return name_; };
+  const int   getId() const { return id_; };
+  const int   getBagageId() const { return bagage_.getId(); };
+  const int   getBagageWeight() const { return bagage_.getWeight(); };
 };
+#endif /*_PASSENGER_*/
