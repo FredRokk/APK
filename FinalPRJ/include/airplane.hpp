@@ -18,7 +18,7 @@ class airplane
     : public planeProperties<CargoCapacity, PassengerCapacity, Size, Reach>
 {
 private:
-  std::string tailNumber_;
+  const std::string tailNumber_;
   // std::vector<passenger> passengers_;
   std::string destination_, position_;
   bool isTaxi_, isTakingOff_, isTouchingDown_;
