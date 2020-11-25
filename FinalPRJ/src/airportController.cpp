@@ -8,11 +8,11 @@
  */
 #include "airplane.hpp"
 #include <iostream>
-
 int main()
 {
-  airplane<1, 10, 100, 1000> Airbus;
-  std::cout << Airbus.getCargoCapacity() << "," << Airbus.getPassengerCapacity()
-           << "," << Airbus.getSize() << "," << Airbus.getReach() << std::endl;
+  airplane<1, 10, 100, 1000> Airbus("Air", "MH370");
+  airplane<2, 20, 200, 2000> Boeing("Rail1", "SAS2");
+
+  std::cout << Airbus << "\n\n" << Boeing <<std::endl;
   return 0;
 }
