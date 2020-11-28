@@ -11,14 +11,16 @@
 class bagage
 {
 private:
-  const int bagageId_;
-  const int bagageWeight_;
+  int bagageId_;
+  int bagageWeight_;
 
 public:
   bagage(const int id, const int weight)
       : bagageId_(id), bagageWeight_(weight){};
   ~bagage(){};
-  const int getWeight() const { return bagageWeight_; };
-  const int getId() const { return bagageId_; };
+  int  getWeight() const { return bagageWeight_; };
+  int  getId() const { return bagageId_; };
+  void setWeight(int weight) { bagageWeight_ = weight; };
+  void setId(int id) { bagageId_ = id; };
 };
 #endif /* _BAGAGE_ */

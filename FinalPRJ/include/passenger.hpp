@@ -20,23 +20,44 @@
 #ifndef _PASSENGER_
 #define _PASSENGER_
 #include "bagage.hpp"
+#include <iostream>
 #include <string>
-template <int ID, int BagageWeight> class passenger
+class passenger
 {
 private:
-  const std::string name_, destination_;
-  const int         id_;
-  bagage            bagage_;
+  std::string name_;
+  std::string destination_;
+  int         id_;
+  bagage      bagage_;
 
 public:
-  passenger(std::string name, std::string destination)
-      : name_(name), id_(ID), bagage_(ID, BagageWeight), destination_(destination);{};
+  explicit passenger(std::string name, std::string destination, int ID,
+                     int bagageWeight)
+      : name_(name),
+        id_(ID),
+        bagage_(ID, bagageWeight),
+        destination_(destination){};
   ~passenger(){};
   void        receiveBagage(){/*To be coded*/};
   void        giveBagage(){/*To be coded*/};
+  void        setBagageWeight(int weight) { bagage_.setWeight(weight); };
+  void        setBagageId() { bagage_.setId(id_); };
   std::string getName() const { return name_; };
-  const int   getId() const { return id_; };
-  const int   getBagageId() const { return bagage_.getId(); };
-  const int   getBagageWeight() const { return bagage_.getWeight(); };
+  std::string getDestination() const { return destination_; };
+  int         getId() const { return id_; };
+  int         getBagageId() const { return bagage_.getId(); };
+  int         getBagageWeight() const { return bagage_.getWeight(); };
+  friend std::ostream &operator<<(std::ostream &os, const passenger &pass)
+  {
+    os << "\nName: " << pass.name_ << "\n\tDestination: " << pass.destination_
+       << "\n\tID: " << pass.id_ << "\n\tBagage ID: " << pass.getBagageId()
+       << "\n\tBagage Weight: " << pass.getBagageWeight();
+  };
+  friend passenger &operator>>(passenger &inPass, passenger &outPass)
+  {
+    inPass >> outPass.name_ >> outPass.id_ >> outPass.destination_;
+    outPass.setBagageId();
+    return inPass;
+  };
 };
 #endif /*_PASSENGER_*/

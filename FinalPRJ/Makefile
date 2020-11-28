@@ -6,7 +6,7 @@ OBJECTS = $(addprefix $(OBJ_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.o
 DEPS = $(addprefix $(DEP_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.d))
 
 EXE = $(BIN_DIR)prog.exe
-CXXFLAGS = -Wall -Wextra -Iinclude -ggdb -pthread # Compiler flags
+CXXFLAGS = -Wall -Wextra -Iinclude -ggdb -O0# Compiler flags
 
 # Making for host (Linux)
 # > make ARCH=host

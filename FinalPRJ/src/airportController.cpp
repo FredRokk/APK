@@ -8,7 +8,7 @@
  */
 #include "airplane.hpp"
 #include "bagage.hpp"
-#include "passenger.hpp"
+#include "passengerGenerator.hpp"
 #include <iostream>
 int main()
 {
@@ -20,12 +20,20 @@ int main()
   std::cout << "\nBagage ID: " << b.getId()
             << "\n\tBagage Weight: " << b.getWeight() << std::endl;
 
-  passenger<53213, 10> DinMor("Lolland's Mor");
-  std::cout << "\nName: " << DinMor.getName() 
+  passenger DinMor("Lolland's Mor", "Olsens hjem ( ͡° ͜ʖ ͡°)", 420, 69);
+  std::cout << "\nName: " << DinMor.getName()
+            << "\n\tDestination: " << DinMor.getDestination() 
             << "\n\tID: " << DinMor.getId()
             << "\n\tBagage ID: " << DinMor.getBagageId() 
             << "\n\tBagage Weight: " << DinMor.getBagageWeight() 
             << std::endl;
+  passengerGenerator passGen;
 
+  passenger test1 = passGen.generatePassenger(1, 15);
+  std::cout << test1 << std::endl;
+
+  passenger test2 = passGen.generatePassenger(1, 15);
+  std::cout << test2 << std::endl;
+  
   return 0;
 }
