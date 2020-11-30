@@ -20,8 +20,10 @@
 #ifndef _PASSENGER_
 #define _PASSENGER_
 #include "bagage.hpp"
+#include <algorithm>
 #include <iostream>
 #include <string>
+#include <utility>
 class passenger
 {
 private:
@@ -31,12 +33,24 @@ private:
   bagage      bagage_;
 
 public:
+  passenger() // Default Constructor
+      : name_("John Doe"), id_(0), bagage_(0, 0), destination_("Unknown"){};
   explicit passenger(std::string name, std::string destination, int ID,
-                     int bagageWeight)
+                     int bagageWeight) // Parametric Contructor
       : name_(name),
         id_(ID),
         bagage_(ID, bagageWeight),
         destination_(destination){};
+  passenger(const passenger &otherPass) // Copy Contructor
+      : name_(otherPass.name_),
+        id_(otherPass.id_),
+        bagage_(otherPass.bagage_),
+        destination_(otherPass.destination_){};
+  passenger(passenger &&otherPass) noexcept // Move Contructor
+      : name_(NULL), id_(NULL), bagage_(NULL, NULL), destination_(NULL)
+  {
+    std::swap(*this, otherPass);
+  };
   ~passenger(){};
   void        receiveBagage(){/*To be coded*/};
   void        giveBagage(){/*To be coded*/};
@@ -53,11 +67,22 @@ public:
        << "\n\tID: " << pass.id_ << "\n\tBagage ID: " << pass.getBagageId()
        << "\n\tBagage Weight: " << pass.getBagageWeight();
   };
-  friend passenger &operator>>(passenger &inPass, passenger &outPass)
+  passenger &operator=(const passenger &pass) // Copy Assignment operator
   {
-    inPass >> outPass.name_ >> outPass.id_ >> outPass.destination_;
-    outPass.setBagageId();
-    return inPass;
+    passenger copyPass(pass);
+    std::swap(*this, copyPass);
+    return *this;
+  };
+  passenger &operator=(passenger &&otherPass) noexcept // Move Assignment operator
+  {
+    if (this != &otherPass)
+    {
+      name_ = std::move(otherPass.name_);
+      id_ = std::move(otherPass.id_);
+      destination_ = std::move(otherPass.destination_);
+      bagage_ = std::move(otherPass.bagage_);
+      return *this;
+    }
   };
 };
 #endif /*_PASSENGER_*/

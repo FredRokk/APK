@@ -34,6 +34,9 @@ int main()
 
   passenger test2 = passGen.generatePassenger(1, 15);
   std::cout << test2 << std::endl;
+
+  passGen.transformPassenger(test2, 1, 15);
+  std::cout << test2 << std::endl;
   
   return 0;
 }
