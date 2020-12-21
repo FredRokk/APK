@@ -200,7 +200,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const airplane& ap)
 	{
-		boost::unique_lock<boost::mutex> scoped_lock(mutex_);
+		//boost::unique_lock<boost::mutex> scoped_lock(mutex_);
 		os << "Tail Number: " << ap.tailNumber_ << "\n\tPosition: " << ap.position_
 			<< "\n\tCargo Capacity: " << ap.getCargoCapacity()
 			<< "\n\tPassenger Capacity: " << ap.getPassengerCapacity()

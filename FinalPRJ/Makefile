@@ -6,7 +6,7 @@ OBJECTS = $(addprefix $(OBJ_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.o
 DEPS = $(addprefix $(DEP_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.d))
 
 EXE = $(BIN_DIR)prog.exe
-CXXFLAGS = -Wall -Wextra -Iinclude -ggdb# Compiler flags
+CXXFLAGS = -Wall -Wextra -Iinclude -I/home/stud/boost_1_75_0/libs -ggdb -L/home/stud/boost_1_75_0/stage/lib -L/lib -pthread -lboost_filesystem -lboost_iostreams -lboost_thread -lrt -lpthread # Compiler flags
 
 # Making for host (Linux)
 # > make ARCH=host
@@ -51,16 +51,16 @@ endif
 endif
 
 $(EXE): $(DEPS) $(OBJECTS) # << Check new dependency
-	$(COMPILER) $(CXXFLAGS) $(STDFLAG) -o $@ $(OBJECTS)
+	$(COMPILER) $(STDFLAG) $(CXXFLAGS) -o $@ $(OBJECTS)
 
 # Rule that describes how a .d (dependency) file is created from a .cpp file
 ${DEP_DIR}%.d: $(SRC_DIR)/%$(suffix $(firstword $(SOURCES)))
-	$(COMPILER) -MT$(@:.d=.o) -MM $(CXXFLAGS) $(STDFLAG) $^ >> $@
-	$(COMPILER) -MT$@ -MM $(CXXFLAGS) $(STDFLAG) $^ > $@
+	$(COMPILER) -MT$(@:.d=.o) -MM $(STDFLAG) $(CXXFLAGS) $^ >> $@
+	$(COMPILER) -MT$@ -MM $(STDFLAG) $(CXXFLAGS) $^ > $@
 
 # Rule that describes how an .o (object) file is created from a .cpp file
 ${OBJ_DIR}%.o: $(SRC_DIR)/%$(suffix $(firstword $(SOURCES)))
-	$(COMPILER) $(CXXFLAGS) $(STDFLAG) -I$(INC_DIR) -c $< -o $@
+	$(COMPILER) -I$(INC_DIR) $(STDFLAG) $(CXXFLAGS) -c $< -o $@
 
 ifneq ($(filter-out clean format tidy,$(MAKECMDGOALS)),)
 -include $(DEPS)
