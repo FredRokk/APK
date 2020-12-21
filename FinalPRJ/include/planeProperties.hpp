@@ -9,22 +9,23 @@
 
 #ifndef _PLANEPROPERTIES_
 #define _PLANEPROPERTIES_
+
 template <int CargoCapacity, int PassengerCapacity, int Size, int Reach>
 class planeProperties
 {
 private:
-  int cargoCapacity_, passengerCapacity_, size_, reach_;
+  //const int cargoCapacity_, passengerCapacity_, size_, reach_;
 
 public:
   planeProperties()
-      : cargoCapacity_(CargoCapacity),
-        passengerCapacity_(PassengerCapacity),
-        size_(Size), reach_(Reach){};
+  {
+      static_assert(Size <= 1500, "Capacity/Size exceeds absolute maximum");
+  };
   ~planeProperties(){};
-  int getCargoCapacity() const { return cargoCapacity_; };
-  int getPassengerCapacity() const { return passengerCapacity_; };
-  int getReach() const { return reach_; };
-  int getSize() const { return size_; };
+  int getCargoCapacity() const { return CargoCapacity; };
+  int getPassengerCapacity() const { return PassengerCapacity; };
+  int getReach() const { return Reach; };
+  int getSize() const { return Size; };
 };
 
 #endif /*_PLANEPROPERTIES_*/

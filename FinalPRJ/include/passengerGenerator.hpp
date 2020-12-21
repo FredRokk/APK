@@ -6,9 +6,11 @@
  *
  * Copyright (c) 2020 APK - Group 4
  */
+constexpr auto DEBUG = 0;
 
 #ifndef _PASSENGERGENERATOR_
 #define _PASSENGERGENERATOR_
+
 #include "passenger.hpp"
 #include <cstdlib>
 #include <ctime>
@@ -47,8 +49,19 @@ public:
     id_++;
     std::string tempName = firstName[std::rand() % 20] + surname[std::rand() % 20];
     passenger tempPassenger(tempName, destination[std::rand() % 5], id_, std::rand() % ((maxWeight + 1) - minWeight));
-    std::cout << "Passenger within transform " << tempPassenger << std::endl;
+    if constexpr (DEBUG)
+    {
+        std::cout << "Passenger within transform " << std::endl;
+        std::cout << "###################################" << std::endl;
+        std::cout << tempPassenger << std::endl;
+    }
+
     pass = std::move(tempPassenger);
+
+    if constexpr (DEBUG)
+    {
+        std::cout << "###################################" << std::endl;
+    }
   }
 };
 
