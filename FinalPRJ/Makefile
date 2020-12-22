@@ -1,16 +1,17 @@
 SRC_DIR ?= src
 INC_DIR ?= include
+#COMPILER := g++
 
 SOURCES := $(notdir $(shell find $(SRC_DIR) -name *.cpp -or -name *.c))
 OBJECTS = $(addprefix $(OBJ_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.o))
 DEPS = $(addprefix $(DEP_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.d))
 
 EXE = $(BIN_DIR)prog.exe
-CXXFLAGS = -Wall -Wextra -Iinclude -I/home/stud/boost_1_75_0/libs -ggdb -L/home/stud/boost_1_75_0/stage/lib -L/lib -pthread -lboost_filesystem -lboost_iostreams -lboost_thread -lrt -lpthread # Compiler flags
-
+CXXFLAGS = -Iinclude -I/usr/include/boost -pthread -lboost_thread -lrt -lpthread -lboost_system -lboost_timer -lboost_chrono # Compiler flags
+# -lboost_filesystem -lboost_iostreams
 # Making for host (Linux)
 # > make ARCH=host
-ifeq (${ARCH},host)
+#ifeq (${ARCH},host)
 ifeq ($(suffix $(firstword $(SOURCES))),.cpp) # If src files = .cpp
 COMPILER = g++
 OBJ_DIR = obj/host/
@@ -27,7 +28,7 @@ BIN_DIR = bin/host/
 STDFLAG = -std=c11 # C std compiler flag for C 17
 $(shell mkdir -p $(OBJ_DIR) $(DEP_DIR) $(BIN_DIR))
 endif
-endif
+#endif
 
 # Making for target (Raspberry PI)
 # > make ARCH=target
@@ -51,7 +52,7 @@ endif
 endif
 
 $(EXE): $(DEPS) $(OBJECTS) # << Check new dependency
-	$(COMPILER) $(STDFLAG) $(CXXFLAGS) -o $@ $(OBJECTS)
+	$(COMPILER) $(OBJECTS) -o $@ $(STDFLAG)$(CXXFLAGS) 
 
 # Rule that describes how a .d (dependency) file is created from a .cpp file
 ${DEP_DIR}%.d: $(SRC_DIR)/%$(suffix $(firstword $(SOURCES)))
