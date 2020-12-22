@@ -13,15 +13,20 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <memory_resource>
 #include <string>
 #include <utility>
+
 class passenger
 {
+  using allocator = std::pmr::polymorphic_allocator<std::byte>;
+
 private:
-  std::string             name_;
-  std::string             destination_;
+  std::pmr::string        name_;
+  std::pmr::string        destination_;
   int                     id_;
   std::shared_ptr<bagage> bagage_;
+  allocator               alloc_;
 
 public:
   passenger() // Default Constructor
@@ -30,18 +35,30 @@ public:
         bagage_(new bagage(0, 0)),
         destination_("Unknown"){};
 
-  passenger(std::string name, std::string destination, int ID,
-            int bagageWeight) // Parametric Contructor
+  passenger(std::pmr::string name, std::pmr::string destination, int ID,
+            int       bagageWeight,
+            allocator alloc =
+                std::pmr::get_default_resource()) // Parametric Contructor
       : name_(name),
         id_(ID),
         bagage_(new bagage(ID, bagageWeight)),
-        destination_(destination){};
+        destination_(destination),
+        alloc_(alloc){};
 
   passenger(const passenger &otherPass) // Copy Contructor
       : name_(otherPass.name_),
         id_(otherPass.id_),
         bagage_(otherPass.bagage_),
-        destination_(otherPass.destination_){};
+        destination_(otherPass.destination_),
+        alloc_(otherPass.alloc_){};
+
+  passenger(const passenger &otherPass,
+            allocator        alloc) // Alloc Copy Constructor
+      : name_(otherPass.name_),
+        id_(otherPass.id_),
+        bagage_(otherPass.bagage_),
+        destination_(otherPass.destination_),
+        alloc_(alloc){};
 
   explicit passenger(passenger &&otherPass) noexcept // Move Contructor
       : name_(""), id_(0), bagage_(new bagage(0, 0)), destination_("")
@@ -52,17 +69,22 @@ public:
     destination_ = std::move(otherPass.destination_);
   };
 
+  passenger(passenger &&otherPass, allocator alloc) noexcept : alloc_(alloc)
+  {
+    operator=(std::move(otherPass));
+  };
+
   ~passenger() { bagage_.~shared_ptr(); };
 
   // void        receivebagage() { /*to be coded*/ };
   // void        givebagage() {/*to be coded*/ };
-  void        setBagageWeight(int weight) { bagage_->setWeight(weight); };
-  void        setBagageId() { bagage_->setId(id_); };
-  std::string getName() const { return name_; };
-  std::string getDestination() const { return destination_; };
-  int         getId() const { return id_; };
-  int         getBagageId() const { return bagage_->getId(); };
-  int         getBagageWeight() const { return bagage_->getWeight(); };
+  void             setBagageWeight(int weight) { bagage_->setWeight(weight); };
+  void             setBagageId() { bagage_->setId(id_); };
+  std::pmr::string getName() const { return name_; };
+  std::pmr::string getDestination() const { return destination_; };
+  int              getId() const { return id_; };
+  int              getBagageId() const { return bagage_->getId(); };
+  int              getBagageWeight() const { return bagage_->getWeight(); };
   friend std::ostream &operator<<(std::ostream &os, const passenger &pass)
   {
     os << "Name: " << pass.name_ << "\n\tDestination: " << pass.destination_
@@ -79,14 +101,29 @@ public:
   passenger &
   operator=(passenger &&otherPass) noexcept // Move Assignment operator
   {
-    if (this != &otherPass)
+    // if (this != &otherPass)
+    // {
+    //   name_        = std::move(otherPass.name_);
+    //   id_          = std::move(otherPass.id_);
+    //   destination_ = std::move(otherPass.destination_);
+    //   bagage_      = std::move(otherPass.bagage_);
+    // }
+    // return *this;
+
+    if (alloc_ == otherPass.alloc_)
     {
-      name_        = std::move(otherPass.name_);
-      id_          = std::move(otherPass.id_);
-      destination_ = std::move(otherPass.destination_);
-      bagage_      = std::move(otherPass.bagage_);
+      std::swap(name_, otherPass.name_);
+      std::swap(destination_, otherPass.destination_);
+      std::swap(id_, otherPass.id_);
+      std::swap(bagage_, otherPass.bagage_);
+    }
+    else
+    {
+      operator=(otherPass);
     }
     return *this;
   };
+
+  allocator getAllocator() const { return alloc_; };
 };
 #endif /*_PASSENGER_*/

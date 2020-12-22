@@ -16,15 +16,18 @@ constexpr auto DEBUG = 0;
 #include <ctime>
 #include <string>
 
+std::pmr::synchronized_pool_resource resource;
+
 class passengerGenerator
 {
 private:
-  std::string destination[5] = {"Egypt", "England", "USA", "Russia", "Germany"};
-  std::string firstName[20]  = {
+  std::pmr::string destination[5] = {"Egypt", "England", "USA", "Russia",
+                                     "Germany"};
+  std::pmr::string firstName[20]  = {
       "William ", "Alfred ", "Oscar ",  "Noah ", "Karl ",   "Lucas ", "Oliver ",
       "Arthur ",  "August ", "Malthe ", "Emma ", "Alma ",   "Clara ", "Freja ",
       "Sofia ",   "Karla ",  "Agnes ",  "Ella ", "Olivia ", "Anna "};
-  std::string surname[20] = {
+  std::pmr::string surname[20] = {
       "Jensen",      "Nielsen", "Hansen",    "Pedersen", "Andersen",
       "Christensen", "Larsen",  "Rasmussen", "Petersen", "Madsen",
       "Kristensen",  "Olsen",   "Thomsen",   "Poulsen",  "Johansen",
@@ -37,20 +40,23 @@ public:
   passenger generatePassenger(int minWeight, int maxWeight)
   {
     id_++;
-    std::string tempName =
+    std::pmr::string tempName =
         firstName[std::rand() % 20] + surname[std::rand() % 20];
     passenger tempPassenger(tempName, destination[std::rand() % 5], id_,
                             minWeight +
-                                std::rand() % ((maxWeight + 1) - minWeight));
+                                std::rand() % ((maxWeight + 1) - minWeight),
+                            &resource);
     return tempPassenger;
   };
+
   void transformPassenger(passenger &pass, int minWeight, int maxWeight)
   {
     id_++;
-    std::string tempName =
+    std::pmr::string tempName =
         firstName[std::rand() % 20] + surname[std::rand() % 20];
     passenger tempPassenger(tempName, destination[std::rand() % 5], id_,
-                            std::rand() % ((maxWeight + 1) - minWeight));
+                            std::rand() % ((maxWeight + 1) - minWeight),
+                            &resource);
     if constexpr (DEBUG)
     {
       std::cout << "Passenger within transform " << std::endl;

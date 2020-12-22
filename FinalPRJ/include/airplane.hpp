@@ -32,7 +32,7 @@ class airplane
 {
 private:
   const std::string      tailNumber_;
-  std::vector<passenger> passengers_;
+  std::pmr::vector<passenger> passengers_;
   std::string            destination_, position_;
   runway *               currentRunway_;
   bool                   leaving_;
@@ -179,10 +179,7 @@ public:
         boost::this_thread::sleep_for(
             boost::chrono::microseconds(std::rand() % 20));
       } while (!receiveMsg.Permission);
-      /*{
-              boost::unique_lock<boost::mutex> scoped_lock(mutex_);
-              std::cout << tailNumber_ << " !TESTPOINT!" << std::endl;
-      }*/
+
       if (leaving_)
       {
         boost::unique_lock<boost::mutex> scoped_lock(mutex_);
@@ -204,7 +201,7 @@ public:
     }
   };
 
-  std::vector<passenger> &getPassengers() { return passengers_; };
+  std::pmr::vector<passenger> &getPassengers() { return passengers_; };
 
   std::string getTailNr() const { return tailNumber_; };
 
@@ -218,7 +215,7 @@ public:
 
   friend std::ostream &operator<<(std::ostream &os, const airplane &ap)
   {
-    // boost::unique_lock<boost::mutex> scoped_lock(mutex_);
+    boost::unique_lock<boost::mutex> scoped_lock(ap.mutex_);
     os << "Tail Number: " << ap.tailNumber_ << "\n\tPosition: " << ap.position_
        << "\n\tCargo Capacity: " << ap.getCargoCapacity()
        << "\n\tPassenger Capacity: " << ap.getPassengerCapacity()

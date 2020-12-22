@@ -56,6 +56,12 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "bit": "cpp"
-    }
+        "bit": "cpp",
+        "list": "cpp",
+        "csignal": "cpp",
+        "shared_mutex": "cpp",
+        "typeindex": "cpp",
+        "variant": "cpp"
+    },
+    "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

@@ -29,7 +29,7 @@ void controlTowerThread(controlTower *ct)
 template <int CargoCapacity, int PassengerCapacity, int Size, int Reach>
 void airplaneThread(
     airplane<CargoCapacity, PassengerCapacity, Size, Reach> *plane,
-    std::vector<gate> *gates_, std::vector<passenger> *passengers)
+    std::vector<gate> *gates_, std::pmr::vector<passenger> *passengers)
 {
 again:
   boost::mutex mtx;
@@ -135,7 +135,7 @@ int main()
   gates.push_back(gate2);
   gates.push_back(gate3);
 
-  std::vector<passenger> passVec;
+  std::pmr::vector<passenger> passVec;
   passengerGenerator     passGen;
   for (size_t i = 0; i < 500; i++)
   {

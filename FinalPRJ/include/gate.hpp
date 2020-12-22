@@ -22,9 +22,9 @@ public:
   template <int CargoCapacity, int PassengerCapacity, int Size, int Reach>
   void
   emptyAirplane(airplane<CargoCapacity, PassengerCapacity, Size, Reach> &plane,
-                std::vector<passenger> &                                 pass)
+                std::pmr::vector<passenger> &                                 pass)
   {
-    std::vector<passenger> tempVec;
+    std::pmr::vector<passenger> tempVec;
     tempVec.swap(plane.getPassengers());
     pass.insert(pass.end(), std::make_move_iterator(tempVec.begin()),
                 std::make_move_iterator(tempVec.end()));
@@ -33,9 +33,9 @@ public:
   template <int CargoCapacity, int PassengerCapacity, int Size, int Reach>
   void
   fillAirplane(airplane<CargoCapacity, PassengerCapacity, Size, Reach> &plane,
-               std::vector<passenger> &                                 pass)
+               std::pmr::vector<passenger> &                                 pass)
   {
-    std::vector<passenger> &tempVec = plane.getPassengers();
+    std::pmr::vector<passenger> &tempVec = plane.getPassengers();
     if (tempVec.size() >= PassengerCapacity)
     {
       tempVec.swap(pass);
