@@ -14,12 +14,12 @@ template <int CargoCapacity, int PassengerCapacity, int Size, int Reach>
 class planeProperties
 {
 private:
-  //const int cargoCapacity_, passengerCapacity_, size_, reach_;
+  // const int cargoCapacity_, passengerCapacity_, size_, reach_;
 
 public:
   planeProperties()
   {
-      static_assert(Size <= 1500, "Capacity/Size exceeds absolute maximum");
+    static_assert(Size <= 1500, "Capacity/Size exceeds absolute maximum");
   };
   ~planeProperties(){};
   int getCargoCapacity() const { return CargoCapacity; };

@@ -47,20 +47,22 @@ public:
   void transformPassenger(passenger &pass, int minWeight, int maxWeight)
   {
     id_++;
-    std::string tempName = firstName[std::rand() % 20] + surname[std::rand() % 20];
-    passenger tempPassenger(tempName, destination[std::rand() % 5], id_, std::rand() % ((maxWeight + 1) - minWeight));
+    std::string tempName =
+        firstName[std::rand() % 20] + surname[std::rand() % 20];
+    passenger tempPassenger(tempName, destination[std::rand() % 5], id_,
+                            std::rand() % ((maxWeight + 1) - minWeight));
     if constexpr (DEBUG)
     {
-        std::cout << "Passenger within transform " << std::endl;
-        std::cout << "###################################" << std::endl;
-        std::cout << tempPassenger << std::endl;
+      std::cout << "Passenger within transform " << std::endl;
+      std::cout << "###################################" << std::endl;
+      std::cout << tempPassenger << std::endl;
     }
 
     pass = std::move(tempPassenger);
 
     if constexpr (DEBUG)
     {
-        std::cout << "###################################" << std::endl;
+      std::cout << "###################################" << std::endl;
     }
   }
 };
