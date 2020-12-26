@@ -15,7 +15,7 @@ private:
   int bagageWeight_;
 
 public:
-  bagage(const int id, const int weight)
+  bagage(const int id = 0, const int weight = 0)
       : bagageId_(id), bagageWeight_(weight){};
   ~bagage(){};
   int  getWeight() const { return bagageWeight_; };

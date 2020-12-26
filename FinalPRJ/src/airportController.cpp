@@ -6,6 +6,7 @@
  *
  * Copyright (c) 2020 APK - Group 4
  */
+
 #include "airplane.hpp"
 #include "bagage.hpp"
 #include "controlTower.hpp"
@@ -14,9 +15,31 @@
 #include "passengerGenerator.hpp"
 #include <boost/interprocess/ipc/message_queue.hpp>
 #include <boost/thread.hpp>
+#include <fstream>
 #include <iostream>
+#include <iterator>
+#include <string>
+
+#define LEFT_AIRPORT "src/PassengersThatHasLeftTheAirport.log"
+#define ENTERED_AIRPORT "src/PassengersThatHasEnteredTheAirport.log"
+
 using namespace boost::interprocess;
-boost::mutex io_mutex;
+typedef std::pmr::vector<passenger> passengerList;
+boost::mutex                        io_mutex;
+
+template<class T>
+void writeToLog(std::vector<T> &container, const std::string &filename) // use for std::vector
+{
+  std::ofstream fileStream(filename.c_str(), std::ios::app);
+  std::copy(container.begin(), container.end(), std::ostream_iterator<T>(fileStream, "\n"));
+}
+
+template<class T>
+void writeToLog(std::pmr::vector<T> &container, const std::string &filename) // use for std::pmr::vector
+{
+  std::ofstream fileStream(filename.c_str(), std::ios::app);
+  std::copy(container.begin(), container.end(), std::ostream_iterator<T>(fileStream, "\n"));
+}
 
 void controlTowerThread(controlTower *ct)
 {
@@ -29,86 +52,110 @@ void controlTowerThread(controlTower *ct)
 template <int CargoCapacity, int PassengerCapacity, int Size, int Reach>
 void airplaneThread(
     airplane<CargoCapacity, PassengerCapacity, Size, Reach> *plane,
-    std::vector<gate> *gates_, std::pmr::vector<passenger> *passengers)
+    std::vector<gate> *gates_, passengerList *passengers,
+    passengerGenerator *passGen)
 {
-again:
   boost::mutex mtx;
-  if (plane->isLeaving())
+  bool         leaving;
+  passengerList passengersFromLog;
+  do
   {
-    // Fill passengers
-    bool  gateFound_f = false; // flag thats high if a free gate was found
-    gate *currentGate = nullptr;
-    do
+    leaving = plane->isLeaving();
+    if (leaving)
     {
-      boost::unique_lock<boost::mutex> scoped_lock(mtx);
-      for (auto itr = gates_->begin(); itr != gates_->end(); itr++)
+      // Fill passengers
+      bool  gateFound_f = false; // flag thats high if a free gate was found
+      gate *currentGate = nullptr;
+      do
       {
-        if (!itr->isOccupied() && !gateFound_f)
+        boost::unique_lock<boost::mutex> scoped_lock(mtx);
+        for (auto itr = gates_->begin(); itr != gates_->end(); itr++)
         {
-          currentGate = &*itr; // How beautiful!
-          gateFound_f = true;
+          if (!itr->isOccupied() && !gateFound_f)
+          {
+            currentGate = &*itr; // How beautiful!
+            gateFound_f = true;
+          }
         }
-      }
-    } while (!gateFound_f);
-    gateFound_f = false;
-    currentGate->fillAirplane(*plane, *passengers);
+      } while (!gateFound_f);
+      gateFound_f = false;
+      currentGate->fillAirplane(*plane, *passengers);
 #ifdef DEBUG
-    std::vector<passenger> tempVec = plane->getPassengers();
-    std::for_each(tempVec.begin(), tempVec.end(), [](passenger &pass) {
-      io_mutex.lock();
-      std::cout << pass << std::endl;
-      io_mutex.unlock();
-    });
+      std::vector<passenger> tempVec = plane->getPassengers();
+      std::for_each(tempVec.begin(), tempVec.end(), [](passenger &pass) {
+        io_mutex.lock();
+        std::cout << pass << std::endl;
+        io_mutex.unlock();
+      });
 #endif
 
-    // Taxi
-    plane->ts_taxi();
+      // Taxi
+      plane->ts_taxi();
 
-    // Lift Off
-    plane->ts_takeOff();
+      // Lift Off
+      plane->ts_takeOff();
 
-    // Call destructor
-    io_mutex.lock();
-    std::cout << plane->getTailNr() << " has left the airport!" << std::endl;
-    io_mutex.unlock();
-    plane->~airplane();
+      // Call destructor
+      io_mutex.lock();
+      std::cout << plane->getTailNr() << " has left the airport!" << std::endl;
+      io_mutex.unlock();
 
-    // Join in main
-  }
-  else
-  {
-    // Fill airplane with passengers before landing
+      // Write passengers into database before destruction
+      io_mutex.lock();
+      // readPassengerLog(passengersFromLog, PASSENGER_LOG);
+      // passengersFromLog.insert(passengersFromLog.end(),plane->getPassengers().begin(), plane->getPassengers().end());
+      writeToLog<passenger>(plane->getPassengers(), LEFT_AIRPORT);
+      io_mutex.unlock();
 
-    // Land
-    plane->ts_touchDown();
-    // Taxi
-    plane->ts_taxi();
-    // Empty Passengers
-    bool  gateFound_f = false; // flag thats high if a free gate was found
-    gate *currentGate = nullptr;
-    do
+      plane->~airplane();
+
+      // Join in main
+    }
+    else
     {
-      boost::unique_lock<boost::mutex> scoped_lock(mtx);
-      for (auto itr = gates_->begin(); itr != gates_->end(); itr++)
+      // Fill airplane with passengers before landing
+      passengerList &tempPassVec = plane->getPassengers();
+      for (size_t i = 0; i < PassengerCapacity; i++)
       {
-        if (!itr->isOccupied())
-        {
-          currentGate = &*itr; // How beautiful!
-          gateFound_f = true;
-        }
+        tempPassVec.push_back(passGen->generatePassenger(1, 15));
       }
-    } while (!gateFound_f);
-    gateFound_f = false;
-    currentGate->emptyAirplane(*plane, *passengers);
+      // Land
+      plane->ts_touchDown();
+      // Taxi
+      plane->ts_taxi();
+      // Empty Passengers
+      bool  gateFound_f = false; // flag thats high if a free gate was found
+      gate *currentGate = nullptr;
+      do
+      {
+        boost::unique_lock<boost::mutex> scoped_lock(mtx);
+        for (auto itr = gates_->begin(); itr != gates_->end(); itr++)
+        {
+          if (!itr->isOccupied())
+          {
+            currentGate = &*itr; // How beautiful!
+            gateFound_f = true;
+          }
+        }
+      } while (!gateFound_f);
+      gateFound_f = false;
 
-    io_mutex.lock();
-    std::cout << plane->getTailNr() << " has entered the airport!" << std::endl;
-    io_mutex.unlock();
+      // Log entering passengers
+      io_mutex.lock();
+      writeToLog<passenger>(plane->getPassengers(), ENTERED_AIRPORT);
+      io_mutex.unlock();
 
-    // set to leving and leave the airport
-    plane->changeLeaving();
-    goto again;
-  }
+      currentGate->emptyAirplane(*plane, *passengers);
+
+      io_mutex.lock();
+      std::cout << plane->getTailNr() << " has entered the airport!"
+                << std::endl;
+      io_mutex.unlock();
+
+      // set to leving and leave the airport
+      plane->changeLeaving();
+    }
+  } while (!leaving);
 }
 
 int main()
@@ -136,7 +183,7 @@ int main()
   gates.push_back(gate3);
 
   std::pmr::vector<passenger> passVec;
-  passengerGenerator     passGen;
+  passengerGenerator          passGen;
   for (size_t i = 0; i < 500; i++)
   {
     passVec.push_back(passGen.generatePassenger(1, 15));
@@ -161,9 +208,9 @@ int main()
 
   boost::thread towerThread(&controlTowerThread, &tower1);
   boost::thread testThread1(&airplaneThread<100, 200, 1500, 13000>, &test,
-                            &gates, &passVec);
+                            &gates, &passVec, &passGen);
   boost::thread testThread2(&airplaneThread<100, 200, 1500, 13000>, &test2,
-                            &gates, &passVec);
+                            &gates, &passVec, &passGen);
 
   towerThread.join();
   testThread1.join();

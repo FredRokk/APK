@@ -25,6 +25,8 @@ private:
   std::pmr::string        name_;
   std::pmr::string        destination_;
   int                     id_;
+  int                     bagageWeight_;  
+  int                     bagageID_;
   std::shared_ptr<bagage> bagage_;
   allocator               alloc_;
 
@@ -92,6 +94,15 @@ public:
        << "\n\tBagage Weight: " << pass.getBagageWeight();
     return os;
   };
+
+  friend std::istream &operator>>(std::istream &is, passenger &pass)
+  {
+    is >> pass.name_ >> pass.destination_ >> pass.id_ >> pass.bagageID_ >> pass.bagageWeight_;
+    pass.setBagageWeight(pass.bagageWeight_);
+    pass.setBagageId();
+    return is;
+  };
+
   passenger &operator=(const passenger &pass) // Copy Assignment operator
   {
     passenger copyPass(pass);

@@ -14,17 +14,17 @@ CXXFLAGS = -Iinclude -I/usr/include/boost -pthread -lboost_thread -lrt -lpthread
 #ifeq (${ARCH},host)
 ifeq ($(suffix $(firstword $(SOURCES))),.cpp) # If src files = .cpp
 COMPILER = g++
-OBJ_DIR = obj/host/
-DEP_DIR = deps/host/
-BIN_DIR = bin/host/
+OBJ_DIR = obj/#host/
+DEP_DIR = deps/#host/
+BIN_DIR = bin/#host/
 STDFLAG = -std=c++17 # C++ std compiler flag for C++ 17
 $(shell mkdir -p $(OBJ_DIR) $(DEP_DIR) $(BIN_DIR))
 endif
 ifeq ($(suffix $(firstword $(SOURCES))),.c) # If src files = .c
 COMPILER = gcc
-OBJ_DIR = obj/host/
-DEP_DIR = deps/host/
-BIN_DIR = bin/host/
+OBJ_DIR = obj/#host/
+DEP_DIR = deps/#host/
+BIN_DIR = bin/#host/
 STDFLAG = -std=c11 # C std compiler flag for C 17
 $(shell mkdir -p $(OBJ_DIR) $(DEP_DIR) $(BIN_DIR))
 endif
@@ -70,10 +70,14 @@ endif
 all: $(EXE)
 
 run: all
+	@rm -rf $(SRC_DIR)/*.log
 	clear
 	@./$(EXE)
+	
+
 
 clean:
-	@rm -rf $(OBJ_DIR) $(DEP_DIR) $(BIN_DIR)
+	@rm -rf $(OBJ_DIR)/*.o $(DEP_DIR)/*.d $(BIN_DIR)/*
+	@rm -rf $(SRC_DIR)/*.log
 
 .PHONY: all run clean
