@@ -134,7 +134,6 @@ void airplaneThread(
           if (!itr->isOccupied())
           {
             currentGate = &*itr; // How beautiful!
-            gateFound_f = true;
           }
         }
       } while (!gateFound_f);
