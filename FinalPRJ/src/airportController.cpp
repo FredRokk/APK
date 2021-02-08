@@ -8,10 +8,10 @@
  */
 
 #include "airplane.hpp"
-#include "bagage.hpp"
+//#include "bagage.hpp"
 #include "controlTower.hpp"
 #include "gate.hpp"
-#include "messages.hpp"
+//#include "messages.hpp"
 #include "passengerGenerator.hpp"
 #include <boost/interprocess/ipc/message_queue.hpp>
 #include <boost/thread.hpp>

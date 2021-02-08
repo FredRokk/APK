@@ -28,4 +28,5 @@ public:
   int getSize() const { return Size; };
 };
 
+
 #endif /*_PLANEPROPERTIES_*/

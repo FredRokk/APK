@@ -10,7 +10,7 @@
 #ifndef _CONTROLTOWER_
 #define _CONRTOLTOWER_
 
-#include "airplane.hpp"
+//#include "airplane.hpp"
 #include "runway.hpp"
 #include <algorithm>
 #include <boost/interprocess/ipc/message_queue.hpp>
