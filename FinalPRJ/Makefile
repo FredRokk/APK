@@ -5,9 +5,9 @@ INC_DIR ?= include
 SOURCES := $(notdir $(shell find $(SRC_DIR) -name *.cpp -or -name *.c))
 OBJECTS = $(addprefix $(OBJ_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.o))
 DEPS = $(addprefix $(DEP_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.d))
-
+#-pthread
 EXE = $(BIN_DIR)prog.exe
-CXXFLAGS = -Iinclude -ggdb -I/usr/include/boost -pthread -lboost_thread -lrt -lpthread -lboost_system -lboost_timer -lboost_chrono # Compiler flags
+CXXFLAGS = -Iinclude -ggdb -I/usr/include/boost -lboost_thread -lrt -lpthread -lboost_system -lboost_timer -lboost_chrono # Compiler flags
 # -lboost_filesystem -lboost_iostreams
 # Making for host (Linux)
 # > make ARCH=host
