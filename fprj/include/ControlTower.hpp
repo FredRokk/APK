@@ -6,13 +6,14 @@
 #include <list>
 #include <boost/interprocess/ipc/message_queue.hpp>
 
+
 class ControlTower
 {
 private:
     /* data */
     struct Runway_
     {
-        int RunwayID ;
+        int RunwayID;
         bool occupied;
     };
     std::list<Runway_*> runways_;
@@ -34,7 +35,9 @@ public:
     {
         for (int i = 0; i < num_runways; i++)
         {
-            runways_.push_back(new Runway_{.RunwayID = i, .occupied = false});
+            runways_.push_back(new Runway_{
+                .RunwayID = i, 
+                .occupied = false});
         }
     };
     // Copy Contructor

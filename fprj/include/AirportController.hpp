@@ -24,8 +24,20 @@ public:
         AirplaneList_.empty();
     };
     void SendAirplainInfo(){};
-    void SendGateToPassenger(){};
-    void ReceiveDestination(){};
+    void SendGateToPassenger()
+    {
+        message_queue AirportController_(open_or_create, "PassengerMessagesQueue", 100, sizeof(Messages::AirportControllerToPassenger));
+        Messages::AirportControllerToPassenger *message = new Messages::AirportControllerToPassenger;
+        message->GateNumber = 1; // to be changed
+
+    };
+    void ReceiveDestination()
+    {
+        message_queue AirportController_(open_or_create, "AirportMessagesQueue", 100, sizeof(Messages::PassengerToAirportController));
+        AirportController_.receive();
+
+
+    };
     void ReceiveAirplaneConfirmation(){};
     void AddGate(Gate gate_)
     {

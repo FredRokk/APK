@@ -3,8 +3,12 @@
 
 #include <string>
 #include <list>
+#include "Messages.hpp"
 #include "Passenger.hpp"
 #include "Destination.hpp"
+#include <boost/interprocess/ipc/message_queue.hpp>
+
+using namespace boost::interprocess;
 
 class Airplane
 {
@@ -17,7 +21,6 @@ private:
     Destination Destination_;
     int GateNumber_;
     std::list<Passenger> PassengerList;
-
     enum sizes
     {
         small,
