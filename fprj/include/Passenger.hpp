@@ -16,12 +16,13 @@ private:
     Destination Destination_;
     bool atGate_;
     int gateNumber_;
+    std::string MessageQueueName_;
 
 public:
     Passenger(int id, Destination dest = Destination::London, int gnumber = 0)
         : ID_((id >= 0) ? 0 : id), Destination_(dest), gateNumber_(gnumber)
     {
-
+        MessageQueueName_ = "passenger:" + ID_;
     };
     ~Passenger()
     {
@@ -30,17 +31,19 @@ public:
     void sendDestination()
     {
         message_queue Passenger_(open_or_create, "AirportMessagesQueue", 100, sizeof(Messages::PassengerToAirportController));
-        Messages::PassengerToAirportController *message = new Messages::PassengerToAirportController;
-        message->Destination_ = Destination_;
-        Passenger_.send(message, sizeof(Messages::PassengerToAirportController), 0);
+        Messages::PassengerToAirportController message;
+        message.Destination_ = Destination_;
+        message.PassengerMsgQ = MessageQueueName_;
+        Passenger_.send(&message, sizeof(Messages::PassengerToAirportController), 0);
     };
     int recieveGateNumber()
     {
-        message_queue Passenger_(open_or_create, "PassengerMessagesQueue", 100, sizeof(Messages::AirportControllerToPassenger));
-
-        //Passenger_.receive(Void * buffer, std::size_t buffer_size, std::size_t & recvd_size, 
-        //    unsigned int & priority);
-
+        message_queue Passenger_(open_or_create, MessageQueueName_.c_str(), 100, sizeof(Messages::AirportControllerToPassenger));
+        Messages::AirportControllerToPassenger * msg = new Messages::AirportControllerToPassenger;
+        message_queue::size_type recvd_size;
+        unsigned int priority = 0;
+        Passenger_.receive(&msg, sizeof(Messages::AirportControllerToPassenger), recvd_size, priority);
+        gateNumber_ = msg->GateNumber;
     };
     void moveToGate()
     {

@@ -1,5 +1,6 @@
 #ifndef _MESSAGES_HPP_
 #define _MESSAGES_HPP_
+#include <string>
 #include "Destination.hpp"
 
 class Message
@@ -19,6 +20,7 @@ namespace Messages
     struct PassengerToAirportController : public Message
     {
         Destination Destination_;
+        std::string PassengerMsgQ;
     };
 
     struct AirportControllerToPassenger : public Message
@@ -31,3 +33,5 @@ namespace Messages
 //message_queue fromPlaneToTower_(open_or_create, "tower_msgs", 100, sizeof(Messages::PlaneToTower));
 
 #endif /*_MESSAGES_HPP_*/
+        
+    
