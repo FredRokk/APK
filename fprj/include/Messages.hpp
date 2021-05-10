@@ -27,6 +27,32 @@ namespace Messages
     {
         int GateNumber;
     };
+
+    struct PlaneToControltower : public Message
+    {
+        int FlightID;
+        bool RequestingPermission;
+        bool HasLeft;
+        int RunwayID;
+    };
+
+    struct PlaneConfirmation : public Message
+    {
+        int GateID;
+        int FlightID;
+    };
+    
+    struct PlaneHasLeft : public Message
+    {
+        int FlightID;
+    };
+
+     struct AirportControllerToAirplane : public Message
+    {
+        Destination Destination_;
+        int GateNumber;
+    };
+
 }
 
 

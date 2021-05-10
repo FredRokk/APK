@@ -22,7 +22,7 @@ public:
     Passenger(int id, Destination dest = Destination::London, int gnumber = 0)
         : ID_((id >= 0) ? 0 : id), Destination_(dest), gateNumber_(gnumber)
     {
-        MessageQueueName_ = "passenger:" + ID_;
+        MessageQueueName_ = "passenger:" + std::to_string(ID_) + "MessageQueue";
     };
     ~Passenger()
     {
@@ -30,7 +30,7 @@ public:
     };
     void sendDestination()
     {
-        message_queue Passenger_(open_or_create, "AirportMessagesQueue", 100, sizeof(Messages::PassengerToAirportController));
+        message_queue Passenger_(open_or_create, "AirportMessageQueue", 100, sizeof(Messages::PassengerToAirportController));
         Messages::PassengerToAirportController message;
         message.Destination_ = Destination_;
         message.PassengerMsgQ = MessageQueueName_;

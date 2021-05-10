@@ -21,6 +21,7 @@ private:
     Destination Destination_;
     int GateNumber_;
     std::list<Passenger> PassengerList;
+    int RunwayID_;
     enum sizes
     {
         small,
@@ -32,24 +33,69 @@ private:
 
 public:
     Airplane(int FlightID = 1, int Capacity = 200, sizes size = big, Destination dis = Destination::Oslo) 
-        : FlightID_(FlightID), Capacity_(Capacity), Size_(size), Destination_(dis)
+        : FlightID_(FlightID), Capacity_(Capacity), Size_(size), Destination_(dis), RunwayID_(0)
     {
         // FlightID_ = FlightID;
         // Capacity_ = Capacity;
         // Size_ = size;
         // Destination_ = dis;
     };
-    ~Airplane(){};
-    void ReceiveGeneralInfo(){};
-    void SendConfirmation(){};
-    void AskForRunway(){};
-    void ReceiveRunway(){};
-    void SendIsFull(){};
+    ~Airplane()
+    {
+
+    };
+    void ReceiveGeneralInfo()
+    {
+        std::string FlightID = std::to_string(FlightID_);
+        message_queue Plane_(open_or_create, FlightID.c_str(), 100,
+                           sizeof(Messages::AirportControllerToAirplane));
+
+        Messages::AirportControllerToAirplane *msg = new Messages::AirportControllerToAirplane;
+
+        message_queue::size_type recvd_size;
+        unsigned int             priority = 0;
+
+        Plane_.try_receive(msg, sizeof(Messages::AirportControllerToAirplane), recvd_size,
+                         priority);
+        GateNumber_ = msg->GateNumber;
+        Destination_ = msg->Destination_;
+    };
+    void SendConfirmation()
+    {
+        message_queue PlaneConformation_(open_or_create, "PlaneConfirmationQueue", 100, sizeof(Messages::PlaneConfirmation));
+        Messages::PlaneConfirmation msg;
+        msg.GateID = GateNumber_;
+        msg.FlightID = FlightID_;
+        PlaneConformation_.send(&msg, sizeof(Messages::PlaneConfirmation), 0);
+    };
+    void AskForRunway()
+    {
+
+    };
+    void ReceiveRunway()
+    {
+
+    };
+    void SendIsFull()
+    {
+        /* Boost signals? */
+    };
     bool GetIsFull() const
     {
         return IsFull_;
     };
     void BoardPassenger(Passenger Passenger){};
-    void TakeOff(){};
+    void TakeOff()
+    {
+        
+    };
+    int getID() const
+    {
+        return FlightID_;
+    };
+    int getCapacity() const
+    {
+        return Capacity_;
+    };
 };
 #endif
