@@ -28,15 +28,55 @@ public:
     {
 
     };
+
+    // Copy Contructor
+    Passenger(const Passenger &oldPassenger) 
+        : ID_(oldPassenger.ID_), Destination_(oldPassenger.Destination_), atGate_(oldPassenger.atGate_),
+          gateNumber_(oldPassenger.gateNumber_), MessageQueueName_(oldPassenger.MessageQueueName_)
+    {};
+    // Move Contructor
+    explicit Passenger(const Passenger &&oldPassenger) noexcept
+    {
+        ID_ = std::move(oldPassenger.ID_);
+        Destination_ = std::move(oldPassenger.Destination_);
+        atGate_ = std::move(oldPassenger.atGate_);
+        gateNumber_ = std::move(oldPassenger.gateNumber_);
+        MessageQueueName_ = std::move(oldPassenger.MessageQueueName_);
+    };
+
+    Passenger &operator=(const Passenger &passenger) // copy ass op
+    {
+        Passenger copyPassenger(passenger);
+        std::swap(*this, copyPassenger);
+        return *this;
+    };
+
+    Passenger &operator=(Passenger &&oldPassenger) noexcept // move ass op
+    {
+        if (this != &oldPassenger)
+        {
+            ID_ = std::move(oldPassenger.ID_);
+            Destination_ = std::move(oldPassenger.Destination_);
+            atGate_ = std::move(oldPassenger.atGate_);
+            gateNumber_ = std::move(oldPassenger.gateNumber_);
+            MessageQueueName_ = std::move(oldPassenger.MessageQueueName_);
+        }
+        else
+        {
+            operator=(oldPassenger);
+        }
+        return *this;
+    };
+
     void sendDestination()
     {
         message_queue Passenger_(open_or_create, "AirportMessageQueue", 100, sizeof(Messages::PassengerToAirportController));
         Messages::PassengerToAirportController message;
         message.Destination_ = Destination_;
         message.PassengerMsgQ = MessageQueueName_;
-        Passenger_.send(&message, sizeof(Messages::PassengerToAirportController), 0);
+        Passenger_.send(&message, sizeof(message), 0);
     };
-    int recieveGateNumber()
+    void recieveGateNumber()
     {
         message_queue Passenger_(open_or_create, MessageQueueName_.c_str(), 100, sizeof(Messages::AirportControllerToPassenger));
         Messages::AirportControllerToPassenger * msg = new Messages::AirportControllerToPassenger;
@@ -47,7 +87,7 @@ public:
     };
     void moveToGate()
     {
-
+        atGate_ = true;
     };
 };
 #endif

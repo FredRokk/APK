@@ -87,8 +87,6 @@ public:
 
         AirportController_.send(
             &msg, sizeof(Messages::AirportControllerToAirplane), 0);
-
-        PassengerMsgs_.remove(PassengerMsg);
       }
     }
   };

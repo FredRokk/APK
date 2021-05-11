@@ -2,6 +2,7 @@
 #define _GATE_HPP_
 
 #include <list>
+#include "Airplane.hpp"
 #include "Passenger.hpp"
 
 class Gate
@@ -15,17 +16,12 @@ private:
 public:
     Gate(int gateNumber)
         :GateNumber_((gateNumber >= 0) ? 0 : gateNumber), GateOccupied_(false)
-    {
-
-    };
+    {};
     ~Gate()
+    {};
+    void addPassenger(Passenger &passenger)
     {
-
-    };
-    void addPassenger(int ID)
-    {
-        PassengerList_.push_back(Passenger(ID));
-
+        PassengerList_.push_back(passenger);
     };
     int GetGateNumber() const
     {
@@ -44,9 +40,9 @@ public:
     {
         GateOccupied_ = state;
     };
-    void BoardAirplane()
+    void BoardAirplane(Airplane &airplane)
     {
-
+        std::swap(PassengerList_, airplane.getPassengerList());
     };
 
 };

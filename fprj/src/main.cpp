@@ -1,5 +1,6 @@
 #include "Passenger.hpp"
 #include <thread>
+#include <string>
 
 
 
@@ -10,7 +11,8 @@ void PassengerCreatorTheat(int seed)
     {
         int PassengerID = 1;
         Passenger PassengerObjekt(PassengerID, Destination::London);
-        std::thread PassTheat(PassengerTheat, &PassengerObjekt );
+        std::string threadName =  "passenger:" + std::to_string(PassengerID) + "theat"; 
+        std::thread threadName(PassengerTheat, &PassengerObjekt );
         //sleep(1);
         std::this_thread::sleep_for(1000ms);
         PassengerID++;
@@ -27,14 +29,14 @@ void AirplaneTheat(int seed)
 
 };
 
-void PassengerTheat(int seed)
+void PassengerTheat(Passenger PassengerObjekt)
 {   
-    /* ---------- -----------------
-        Passenger.sendDestination()
-        Passenger.recieveGateNumber()
+   
+        PassengerObjekt.sendDestination()
+        PassengerObjekt.recieveGateNumber()
         white for gatenumber
         Passenger.moveToGate()
-    */
+    
 
 };
 
