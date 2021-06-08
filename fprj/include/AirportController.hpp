@@ -16,7 +16,7 @@ private:
   std::list<Destination>                            Destinations_;
   std::list<Messages::PassengerToAirportController> PassengerMsgs_;
   std::list<Gate>                                   GateList_;
-  std::list<Airplane>                               AirplaneList_;
+  std::list<Airplane *>                             AirplaneList_;
   Gate *chosenGate = nullptr;
 
   int CheckNumberOfTravelersToDestination(Destination dest)
@@ -41,15 +41,15 @@ private:
     Airplane *planePtr = nullptr;
     for (auto &airplaneItem : AirplaneList_)
     {
-      if (airplaneItem.getID() == planeID)
+      if (airplaneItem->getID() == planeID)
       {
-        *planePtr = airplaneItem;
+        planePtr = airplaneItem;
         break;
       }
     }
     if (planePtr != nullptr)
     {
-      AirplaneList_.remove(*planePtr);
+      AirplaneList_.remove(planePtr);
     }
   }
 
@@ -71,13 +71,28 @@ public:
   ~AirportController()
   {};
 
+  void receiveInitialPlaneInfo()
+  {
+    message_queue q(open_or_create, "InitialPlaneToAirportMessage", 100, sizeof(Messages::planeInfo));
+
+    Messages::planeInfo *msg = new Messages::planeInfo;
+
+    message_queue::size_type recvd_size;
+    unsigned int             priority = 0;
+
+    q.try_receive(msg, sizeof(Messages::planeInfo),recvd_size, priority);
+
+    AirplaneList_.push_back(static_cast<Airplane *>(msg->planeAddr));
+    delete msg;
+  }
+
   void SendAirplaneInfo(int capacity, Destination dest) 
   {
     for (auto Plane : AirplaneList_)
     {
-      if (Plane.getCapacity() >= capacity )
+      if (Plane->getCapacity() >= capacity )
       {
-        std::string FlightID = std::to_string(Plane.getID());
+        std::string FlightID = std::to_string(Plane->getID());
         message_queue AirportController_( open_or_create, FlightID.c_str(), 100, sizeof(Messages::AirportControllerToAirplane));
 
         Messages::AirportControllerToAirplane msg;
@@ -164,7 +179,7 @@ public:
   {
     Destinations_.push_back(destination_);
   };
-  void AddAirplane(Airplane plane_) { AirplaneList_.push_back(plane_); };
+  void AddAirplane(Airplane &plane_) { AirplaneList_.push_back(&plane_); };
 
   void ReceiveAirplaneTakenOff(Airplane plane_)
   {

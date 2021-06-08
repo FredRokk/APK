@@ -2,6 +2,7 @@
 #define _MESSAGES_HPP_
 #include <string>
 #include "Destination.hpp"
+#include "Sizes.hpp"
 
 class Message
 {
@@ -53,6 +54,10 @@ namespace Messages
         int GateNumber;
     };
 
+    struct planeInfo : public Message
+    {
+        void *planeAddr;
+    };
 }
 
 

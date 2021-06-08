@@ -4,6 +4,7 @@
 #include "Destination.hpp"
 #include "Messages.hpp"
 #include "Passenger.hpp"
+#include "Sizes.hpp"
 #include <boost/interprocess/ipc/message_queue.hpp>
 #include <list>
 #include <string>
@@ -16,21 +17,15 @@ private:
   /* data */
   int                  FlightID_;
   int                  Capacity_;
-  int                  Size_;
+  sizes                Size_;
   bool                 IsFull_;
   Destination          Destination_;
   int                  GateNumber_;
   std::list<Passenger> PassengerList_;
   int                  RunwayID_;
-  enum sizes
-  {
-    small,
-    medium,
-    big
-  };
 
 public:
-  Airplane(int FlightID = 1, int Capacity = 200, sizes size = big,
+  Airplane(int FlightID = 1, int Capacity = 200, sizes size = sizes::big,
            Destination dis = Destination::Oslo)
       : FlightID_(FlightID),
         Capacity_(Capacity),
@@ -42,9 +37,17 @@ public:
             // Size_ = size;
             // Destination_ = dis;
         };
-  ~Airplane()
+  ~Airplane(){};
+
+  void sendPlaneInfoToAirportController()
   {
-  };
+    Messages::planeInfo message;
+    message.planeAddr = this;
+
+    message_queue q(open_or_create, "InitialPlaneToAirportMessage", 100, sizeof(Messages::planeInfo));
+    q.send(&message, sizeof(message), 0);
+  }
+
   void ReceiveGeneralInfo()
   {
     std::string   FlightID = std::to_string(FlightID_);
@@ -84,14 +87,16 @@ public:
   bool ReceiveRunway()
   {
     Messages::ControlTowerToPlane *message = new Messages::ControlTowerToPlane;
-    message_queue::size_type      recvd_size;
-    unsigned int                  priority = 0;
-    std::string                   FlightID = std::to_string(FlightID_);
-    message_queue mq(open_or_create, FlightID.c_str(), 100, sizeof(Messages::ControlTowerToPlane));
-    mq.receive(&message, sizeof(Messages::ControlTowerToPlane), recvd_size, priority);
+    message_queue::size_type       recvd_size;
+    unsigned int                   priority = 0;
+    std::string                    FlightID = std::to_string(FlightID_);
+    message_queue                  mq(open_or_create, FlightID.c_str(), 100,
+                     sizeof(Messages::ControlTowerToPlane));
+    mq.receive(&message, sizeof(Messages::ControlTowerToPlane), recvd_size,
+               priority);
     if (message->permission)
     {
-        RunwayID_ = message->rwNumber;
+      RunwayID_ = message->rwNumber;
     }
     bool permission = message->permission;
     delete message;
@@ -106,19 +111,16 @@ public:
   void TakeOff()
   {
     Messages::PlaneToControltower message;
-    unsigned int priority = 0;
-    message_queue mq(open_or_create, "PlaneToTower", 100, sizeof(Messages::PlaneToControltower));
+    unsigned int                  priority = 0;
+    message_queue                 mq(open_or_create, "PlaneToTower", 100,
+                     sizeof(Messages::PlaneToControltower));
     message.FlightID = FlightID_;
-    message.HasLeft = true;
+    message.HasLeft  = true;
     message.RunwayID = RunwayID_;
     mq.send(&message, sizeof(message), priority);
   };
-  int getID() const { return FlightID_; };
-  int getCapacity() const { return Capacity_; };
-  std::list<Passenger> &getPassengerList()
-  {
-    return PassengerList_;
-  };
-
+  int                   getID() const { return FlightID_; };
+  int                   getCapacity() const { return Capacity_; };
+  std::list<Passenger> &getPassengerList() { return PassengerList_; };
 };
 #endif
