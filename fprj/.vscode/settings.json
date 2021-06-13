@@ -59,6 +59,9 @@
         "typeinfo": "cpp",
         "bit": "cpp",
         "typeindex": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "csignal": "cpp",
+        "codecvt": "cpp",
+        "*.ipp": "cpp"
     }
 }

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <list>
 #include <boost/interprocess/ipc/message_queue.hpp> 
+#include <thread>
 
 class ControlTower
 {
@@ -13,7 +14,7 @@ private:
     /* data */
     struct Runway_
     {
-        int RunwayID;
+        const int RunwayID;
         bool occupied;
     };
     std::list<Runway_*> runways_;
@@ -22,7 +23,7 @@ private:
     {
         for (auto &rwItem : runways_)
         {
-            if (!rwItem->occupied)
+            if (rwItem->occupied == 0)
             {
                 chosenRunway_ = rwItem;
                 break;
@@ -43,9 +44,9 @@ private:
     };
 
     // Using algorithm
-    static bool ConditionForSearch(const Runway_& rwItem, int n)
+    static bool ConditionForSearch(const Runway_ *rwItem, int n)
     {
-      return rwItem.RunwayID == n;
+      return rwItem->RunwayID == n;
     };
     void SearchForRunwayUsingAlgo(int rwNumber)
     {
@@ -68,8 +69,12 @@ public:
         }
     };
     // Copy Contructor
-    ControlTower(const ControlTower &otherTower) : runways_(otherTower.runways_)
-    {};
+    ControlTower(const ControlTower &otherTower)
+    {
+        runways_.clear();
+        std::copy(otherTower.runways_.begin(), otherTower.runways_.end(), std::back_inserter(runways_));
+        chosenRunway_ = otherTower.chosenRunway_;
+    };
     // Move Contructor
     explicit ControlTower(const ControlTower &&otherTower) noexcept
     {
@@ -94,8 +99,9 @@ public:
             message.permission = true;
             message.rwNumber = chosenRunway_-> RunwayID;
             std::string planeName = std::to_string(planeId);
-            message_queue mq(open_or_create, planeName.c_str(), 100, sizeof(Messages::ControlTowerToPlane));
-            mq.send(&message, sizeof(Messages::ControlTowerToPlane), 0);
+            SendMessage<Messages::ControlTowerToPlane>(planeName, message);
+            // message_queue mq(open_or_create, planeName.c_str(), 100, sizeof(Messages::ControlTowerToPlane));
+            // mq.send(&message, sizeof(Messages::ControlTowerToPlane), 0);
             chosenRunway_ -> occupied = true;
             chosenRunway_ = nullptr;
             return true;
@@ -107,45 +113,50 @@ public:
     };
     void ReceiveMessageFromPlane()
     {   
-        message_queue::size_type recvd_size;
-        unsigned int             priority = 0;
         bool recievedMessage = false;
-        message_queue mq(open_or_create, "PlaneToTower", 100, sizeof(Messages::PlaneToControltower));
-        Messages::PlaneToControltower *message = new Messages::PlaneToControltower;
-        recievedMessage = mq.try_receive(message, sizeof(Messages::PlaneToControltower), recvd_size, priority);
+
+        // message_queue::size_type recvd_size;
+        // unsigned int             priority = 0;
+        
+        // message_queue mq(open_or_create, "PlaneToTower", 100, sizeof(Messages::PlaneToControltower));
+        // Messages::PlaneToControltower *message = new Messages::PlaneToControltower;
+        // recievedMessage = mq.try_receive(message, sizeof(Messages::PlaneToControltower), recvd_size, priority);
+
+        auto message = receiveMessage<Messages::PlaneToControltower>("PlaneToTower", recievedMessage);
         if(recievedMessage)
         {
-          if (message->RequestingPermission)
+          if (message.RequestingPermission)
           {
-            bool success = false;
-            while (!success)
-            {
-              success = SendPermission(message->FlightID);
-            }
+            SendPermission(message.FlightID);
           }
-          else if (message->HasLeft)
+          else if (message.HasLeft)
           {
-              SendPlaneHasLeft(message->FlightID);
+              SearchForRunway(message.RunwayID);
+              if(chosenRunway_ != nullptr)
+              {
+                  chosenRunway_->occupied = false;
+                  chosenRunway_ = nullptr;
+              }
+              SendPlaneHasLeft(message.FlightID);
           }
           else
           {
-            SearchForRunwayUsingAlgo(message->RunwayID);
+            SearchForRunwayUsingAlgo(message.RunwayID);
             if (chosenRunway_ != nullptr)
             {
               chosenRunway_->occupied = false;
               chosenRunway_           = nullptr;
             }
           }
-          delete message;
         }
     };
     void SendPlaneHasLeft(int &flightID)
     {
         Messages::PlaneHasLeft message;
-        message_queue mq(open_or_create, "FromTowerToAirport", 100, sizeof(Messages::PlaneHasLeft));
         message.FlightID = flightID;
-        
-        mq.send(&message, sizeof(Messages::PlaneHasLeft), 0);
+        // message_queue mq(open_or_create, "FromTowerToAirport", 100, sizeof(Messages::PlaneHasLeft));        
+        // mq.send(&message, sizeof(Messages::PlaneHasLeft), 0);
+        SendMessage<Messages::PlaneHasLeft>("FromTowerToAirport", message);
     };
 
     ControlTower &operator=(const ControlTower &tower) // copy ass op
@@ -167,6 +178,16 @@ public:
         }
         return *this;
     };
+
+    void operator()()
+    {
+      using namespace std::literals;
+      while (true)
+      {
+        ReceiveMessageFromPlane();
+        std::this_thread::sleep_for(500ms);
+      }
+    }
 };
 
 /* ----------  RULE OF 5 -----------------

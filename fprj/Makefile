@@ -1,12 +1,13 @@
 SRC_DIR ?= src
 INC_DIR ?= include
+ARCH ?= host
 
 SOURCES := $(notdir $(shell find $(SRC_DIR) -name *.cpp -or -name *.c))
 OBJECTS = $(addprefix $(OBJ_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.o))
 DEPS = $(addprefix $(DEP_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.d))
 
 EXE = $(BIN_DIR)prog.exe
-CXXFLAGS = -Wall -Wextra -Iinclude -ggdb -pthread # Compiler flags
+CXXFLAGS = -g -O0 -lrt -Iinclude -ggdb -I/usr/include/boost -lboost_thread -pthread -lpthread -lboost_system -Wfatal-errors# Compiler flags
 
 # Making for host (Linux)
 # > make ARCH=host
@@ -51,7 +52,7 @@ endif
 endif
 
 $(EXE): $(DEPS) $(OBJECTS) # << Check new dependency
-	$(COMPILER) $(CXXFLAGS) $(STDFLAG) -o $@ $(OBJECTS)
+	$(COMPILER) $(CXXFLAGS) $(STDFLAG) -o $@ $(OBJECTS) -lrt
 
 # Rule that describes how a .d (dependency) file is created from a .cpp file
 ${DEP_DIR}%.d: $(SRC_DIR)/%$(suffix $(firstword $(SOURCES)))

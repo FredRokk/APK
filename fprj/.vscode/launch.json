@@ -5,15 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "g++ - Build and debug active file",
+            "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/prog.exe",
+            "program": "/home/stud/APK/fprj/bin/host/prog.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
             "MIMode": "gdb",
             "setupCommands": [
                 {
@@ -21,9 +20,7 @@
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
-            ],
-            "preLaunchTask": "C/C++: g++ build active file",
-            "miDebuggerPath": "/usr/bin/gdb"
+            ]
         }
     ]
 }
