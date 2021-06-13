@@ -6,28 +6,22 @@
 #include "Passenger.hpp"
 #include "Sizes.hpp"
 #include "timer.hpp"
-#include <mutex>
+#include <condition_variable>
 #include <iostream>
+#include <mutex>
 #include <random>
 #include <string>
 #include <thread>
-#include <condition_variable>
 
 #define NUM_PLANES 5
 
 volatile bool initialized = false;
 
 std::condition_variable airplaneCanDisapear;
-std::mutex mtx;
+std::mutex              mtx;
 
 void AirplaneThreadFunction(Airplane airplaneObject)
 {
-  /*
-  send initial information to airportController
-  receive general information
-
-  fly passengers away
-  */
 
   bool permission = false;
 
@@ -47,7 +41,8 @@ void AirplaneThreadFunction(Airplane airplaneObject)
   {
   }
 
-  std::cout << "\033[1;31mAirplane" << airplaneObject.getID() <<  " is starting to take off\033[0m" << std::endl;
+  std::cout << "\033[1;31mAirplane" << airplaneObject.getID()
+            << " is starting to take off\033[0m" << std::endl;
 
   do
   {
@@ -61,64 +56,38 @@ void AirplaneThreadFunction(Airplane airplaneObject)
             << " Has taken off\033[0m" << std::endl;
 
   std::unique_lock<std::mutex> lck(mtx);
-  
-  airplaneCanDisapear.wait(lck);
 
+  airplaneCanDisapear.wait(lck);
 }
 
 void PassengerThreadFunction(Passenger &&PassengerObject)
 {
-  /*
-    PassengerObjekt.sendDestination();
-    PassengerObjekt.recieveGateNumber();
-    white for gatenumber
-    Passenger.moveToGate();
-  */
 
   PassengerObject.sendDestination();
-// std::cout << "Passenger send Destination" << std::endl;
+
   PassengerObject.recieveGateNumber();
-// std::cout << "Passenger recieveGateNumber" << std::endl;
+
   PassengerObject.moveToGate();
 
-  // std::cout << "Passenger is at gate now" << std::endl;
-  while(PassengerObject.getAlive())
-  {};
+  while (PassengerObject.getAlive())
+  {
+  };
 }
-
-// void ControlTowerThreadFunction(ControlTower &&ControlTowerObject)
-// {
-//   /*
-//       ReceiveMessageFromPlane()
-//       SendPermission
-//       SendPlaneHasLeft
-//   */
-//   using namespace std::literals;
-//   while (true)
-//   {
-//     ControlTowerObject.ReceiveMessageFromPlane();
-//     std::this_thread::sleep_for(500ms);
-//     //std::cout << "ControlTower is working... " << std::endl;
-//   }
-// }
 
 void GateThreadFunction(Gate &&gateObject)
 {
-  /*
-     receiveAirplaneInfo()
-     waits to be full
-     receivePassenger()
 
-  */
   std::cout << "Created gate nr." << gateObject.GetGateNumber() << std::endl;
   Airplane *   planePtr      = nullptr;
   unsigned int planeCapacity = 0;
   gateObject.SendInitialInfoToAirportcontroller();
-  std::cout << "Gate" << gateObject.GetGateNumber() << "Has sent its initial message to Airportcontroller" << std::endl;
+  std::cout << "Gate" << gateObject.GetGateNumber()
+            << "Has sent its initial message to Airportcontroller" << std::endl;
   while (true)
   {
     gateObject.receiveAirplaneInfo();
-    std::cout << "\033[1;31mPlane has arrived at gate " << gateObject.GetGateNumber()  << "\033[0m" << std::endl;
+    std::cout << "\033[1;31mPlane has arrived at gate "
+              << gateObject.GetGateNumber() << "\033[0m" << std::endl;
 
     planePtr      = gateObject.getAirplanePtr();
     planeCapacity = planePtr->getCapacity();
@@ -126,7 +95,8 @@ void GateThreadFunction(Gate &&gateObject)
     for (size_t i = 0; i < planeCapacity; i++)
     {
       gateObject.receivePassenger();
-      std::cout << "\033[1;31mGate" << gateObject.GetGateNumber() << " got a passenger: " << i << "\033[0m" << std::endl;
+      std::cout << "\033[1;31mGate" << gateObject.GetGateNumber()
+                << " got a passenger: " << i << "\033[0m" << std::endl;
     }
 
     gateObject.BoardAirplane(*planePtr);
@@ -135,30 +105,18 @@ void GateThreadFunction(Gate &&gateObject)
 
     planePtr = nullptr;
 
-    std::cout << "Gate" << gateObject.GetGateNumber() << " is done with filling airplane"
-              << std::endl;
+    std::cout << "Gate" << gateObject.GetGateNumber()
+              << " is done with filling airplane" << std::endl;
   }
 }
 
 void AirportControllerThreadFunction(
     AirportController &&AirportControllerObject)
 {
-  /*
-      receiveInitialPlaneInfo()
-      AirportController.recieveDestination
-       waits for destination to be full
-      if(destination == full)
-      {
-          SendAirplaneInfo(int capacity, Destination dest)
-          ReceiveAirplaneConfirmation()
-          SendGateToPassenger()
-      }
-
-  */
 
   using namespace std::literals;
   std::cout << "Hello from Airportcontroller" << std::endl;
-  for (int i = Destination::London; i < Destination::TelAviv+1; i++)
+  for (int i = Destination::London; i < Destination::TelAviv + 1; i++)
   {
     AirportControllerObject.initialReceiveGates(static_cast<Destination>(i));
     std::cout << "!!!Got a Gate!!! " << i << std::endl;
@@ -172,9 +130,9 @@ void AirportControllerThreadFunction(
   while (true)
   {
     AirportControllerObject.ReceiveDestination();
-    // std::cout << "Airport receiving destination" << std::endl;
+
     AirportControllerObject.ReceiveAirplaneTakenOff();
-    if(AirportControllerObject.checkIfAirplanesIsEmpty())
+    if (AirportControllerObject.checkIfAirplanesIsEmpty())
     {
       airplaneCanDisapear.notify_all();
       std::this_thread::sleep_for(10s);
@@ -194,9 +152,9 @@ void PassengerCreatorThreadFunction(unsigned int seed = 0xDEADBEEF)
   std::this_thread::sleep_for(1s);
   while (PassengerID <= 100)
   {
-    Passenger   pass(PassengerID,
+    Passenger pass(PassengerID,
                    static_cast<Destination>(randomDest(generator)));
-    // std::cout << "\tCreated a passenger nr:" << PassengerID << std::endl;
+
     std::thread test(PassengerThreadFunction, pass);
     test.detach();
 
@@ -216,12 +174,11 @@ void AirplaneCreatorThreadFunction(unsigned int seed = 0xDEADBEEF)
   using namespace std::literals;
   for (unsigned int i = 0; i < NUM_PLANES; i++)
   {
-    Airplane plane(i+1, randomCap(generator),
+    Airplane plane(i + 1, randomCap(generator),
                    static_cast<sizes>(randomSize(generator)),
                    static_cast<Destination>(randomDest(generator)));
     std::cout << "Created an airplane" << plane.getID() << std::endl;
     std::thread(AirplaneThreadFunction, plane).detach();
-    //std::this_thread::sleep_for(100ms);
   }
 }
 
@@ -244,16 +201,17 @@ int main()
   Gate              Gate3(3);
   Gate              Gate4(4);
   Gate              Gate5(5);
-  std::thread AirplaneContrellerThread(AirportControllerThreadFunction,
+  std::thread       AirplaneContrellerThread(AirportControllerThreadFunction,
                                        Airport);
-  std::thread GateThread1(GateThreadFunction, Gate1);
-  std::thread GateThread2(GateThreadFunction, Gate2);
-  std::thread GateThread3(GateThreadFunction, Gate3);
-  std::thread GateThread4(GateThreadFunction, Gate4);
-  std::thread GateThread5(GateThreadFunction, Gate5);
-  std::thread AirplaneCreatorThread(AirplaneCreatorThreadFunction, 42);
-  while(!initialized)
-  {}
+  std::thread       GateThread1(GateThreadFunction, Gate1);
+  std::thread       GateThread2(GateThreadFunction, Gate2);
+  std::thread       GateThread3(GateThreadFunction, Gate3);
+  std::thread       GateThread4(GateThreadFunction, Gate4);
+  std::thread       GateThread5(GateThreadFunction, Gate5);
+  std::thread       AirplaneCreatorThread(AirplaneCreatorThreadFunction, 42);
+  while (!initialized)
+  {
+  }
   std::thread PassengerCreatorThread(PassengerCreatorThreadFunction,
                                      0xBEEFCAFE);
   std::thread ControlTowerThread(Tower);

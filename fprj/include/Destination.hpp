@@ -2,16 +2,16 @@
 #define _DESTINATION_HPP_
 enum Destination
 {
-    London,
-    Paris,
-    // Berlin,
-    // Oslo,
-    // Stockholm,
-    // Reykjavik,
-    // NewYork,
-    // Rome,
-    Cairo,
-    Warsaw,
-    TelAviv
+  London,
+  Paris,
+  // Berlin,
+  // Oslo,
+  // Stockholm,
+  // Reykjavik,
+  // NewYork,
+  // Rome,
+  Cairo,
+  Warsaw,
+  TelAviv
 };
 #endif

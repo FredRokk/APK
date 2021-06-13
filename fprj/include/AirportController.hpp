@@ -63,19 +63,6 @@ private:
     }
   }
 
-  // int FindFreeGate()
-  // {
-  //   for (auto &gateItem : GateList_)
-  //   {
-  //     if (gateItem->GetOccupancy() == false)
-  //     {
-  //       gateItem->setOccupancy(true);
-  //       return gateItem->GetGateNumber();
-  //       break;
-  //     }
-  //   }
-  // }
-
 public:
   AirportController(/* args */)
   {
@@ -83,34 +70,12 @@ public:
   };
   ~AirportController(){};
 
-  bool checkIfAirplanesIsEmpty()
-  {
-    return AirplaneList_.empty();
-  };
+  bool checkIfAirplanesIsEmpty() { return AirplaneList_.empty(); };
 
   void receiveInitialPlaneInfo()
   {
-    // Messages::planeInfo *msg = new Messages::planeInfo;
-    // try
-    // {
-    //   message_queue q(open_or_create, "InitialPlaneToAirportMessage", 100,
-    //                   sizeof(Messages::planeInfo));
-
-    //   message_queue::size_type recvd_size;
-    //   unsigned int             priority = 0;
-
-    //   msg_rcvd =
-    //       q.try_receive(msg, sizeof(Messages::planeInfo), recvd_size, priority);
-    // }
-    // catch (const interprocess_exception &ex)
-    // {
-    //   message_queue::remove("InitialPlaneToAirportMessage");
-    //   std::cout << ex.what() << "Receive: \"" << "InitialPlaneToAirportMessage" << "\""
-    //             << std::endl;
-    //   exit(EXIT_FAILURE);
-    // }
-
-    auto msg = receiveMessage<Messages::planeInfo>("InitialPlaneToAirportMessage");
+    auto msg =
+        receiveMessage<Messages::planeInfo>("InitialPlaneToAirportMessage");
 
     AirplaneList_.push_back(static_cast<Airplane *>(msg.planeAddr));
   }
@@ -121,7 +86,7 @@ public:
     {
       if (Plane->getInUse() == false)
       {
-        std::string   FlightID = std::to_string(Plane->getID());
+        std::string FlightID = std::to_string(Plane->getID());
 
         Messages::AirportControllerToAirplane msg;
 
@@ -129,16 +94,9 @@ public:
         findGateFromDestination(dest);
         if (chosenGate != nullptr)
         {
-          msg.GateNumber   = chosenGate->GetGateNumber();
-          chosenGate = nullptr;
+          msg.GateNumber = chosenGate->GetGateNumber();
+          chosenGate     = nullptr;
         }
-
-        // message_queue AirportController_(
-        //     open_or_create, FlightID.c_str(), 100,
-        //     sizeof(Messages::AirportControllerToAirplane));
-
-        // AirportController_.send(
-        //     &msg, sizeof(Messages::AirportControllerToAirplane), 0);
 
         SendMessage<Messages::AirportControllerToAirplane>(FlightID, msg);
         break;
@@ -148,18 +106,10 @@ public:
 
   bool ReceiveAirplaneConfirmation()
   {
-    bool          msg_rcvd = false;
-    // message_queue Planeconfirmation_(open_or_create, "PlaneConfirmationQueue",
-    //                                  100, sizeof(Messages::PlaneConfirmation));
-    // Messages::PlaneConfirmation *msg = new Messages::PlaneConfirmation;
+    bool msg_rcvd = false;
+    auto msg      = receiveMessage<Messages::PlaneConfirmation>(
+        "PlaneConfirmationQueue", msg_rcvd);
 
-    // message_queue::size_type recvd_size;
-    // unsigned int             priority = 0;
-
-    // msg_rcvd = Planeconfirmation_.try_receive(
-    //     msg, sizeof(Messages::PlaneConfirmation), recvd_size, priority);
-
-    auto msg = receiveMessage<Messages::PlaneConfirmation>("PlaneConfirmationQueue", msg_rcvd);
     if (msg_rcvd)
     {
       int gate = msg.GateID;
@@ -172,38 +122,26 @@ public:
       }
     }
 
-    //std::cout << "Ran through ReceiveAirplaneConfirmation()" << std::endl;
     return msg_rcvd;
   };
 
   void ReceiveDestination()
   {
-    bool          receivedMessage = false;
-    // message_queue AirportController_(
-    //     open_or_create, "AirportMessagesQueue", 100,
-    //     sizeof(Messages::PassengerToAirportController));
+    bool receivedMessage = false;
 
-    // Messages::PassengerToAirportController *message =
-    //     new Messages::PassengerToAirportController;
-
-    // message_queue::size_type recvd_size;
-    // unsigned int             priority = 0;
-
-    // receivedMessage = AirportController_.try_receive(
-    //     message, sizeof(Messages::PassengerToAirportController), recvd_size,
-    //     priority);
-    Messages::PassengerToAirportController msg1; 
-    msg1 = receiveMessage<Messages::PassengerToAirportController>("AirportMessagesQueue", receivedMessage);
+    Messages::PassengerToAirportController msg1;
+    msg1 = receiveMessage<Messages::PassengerToAirportController>(
+        "AirportMessagesQueue", receivedMessage);
     if (receivedMessage)
     {
       Messages::AirportControllerToPassenger msg;
       findGateFromDestination(msg1.Destination_);
 
-      if(!(chosenGate == nullptr))
+      if (!(chosenGate == nullptr))
       {
         msg.GateNumber = chosenGate->GetGateNumber();
 
-        if(!chosenGate->GetOccupancy())
+        if (!chosenGate->GetOccupancy())
         {
           SendAirplaneInfo(msg1.Destination_);
         }
@@ -212,33 +150,24 @@ public:
       }
       else
       {
-        std::cout << "No gate with destination of " << msg1.Destination_ << std::endl;
+        std::cout << "No gate with destination of " << msg1.Destination_
+                  << std::endl;
       }
 
-      // message_queue mq(open_or_create, message.PassengerMsgQ.c_str(), 100,
-      //                  sizeof(Messages::AirportControllerToPassenger));
-      // mq.send(&msg, sizeof(msg), 0);
-      SendMessage<Messages::AirportControllerToPassenger>(("passenger:" + std::to_string(msg1.PassengerID_) + "MessageQueue"), msg);
+      SendMessage<Messages::AirportControllerToPassenger>(
+          ("passenger:" + std::to_string(msg1.PassengerID_) + "MessageQueue"),
+          msg);
     }
-
-    //std::cout << "Ran through ReceiveDestination()" << std::endl;
   };
 
   void AddAirplane(Airplane &plane_) { AirplaneList_.push_back(&plane_); };
 
   void ReceiveAirplaneTakenOff()
   {
-    bool         receivedMessage = false;
-    // size_t       recvd_size;
-    // unsigned int priority = 0;
-    // auto         message  = new Messages::PlaneHasLeft;
+    bool receivedMessage = false;
 
-    // message_queue mq(open_or_create, "FromTowerToAirport", 100,
-    // sizeof(Messages::PlaneHasLeft)); receivedMessage =
-    // mq.try_receive(&message, sizeof(Messages::PlaneHasLeft), recvd_size,
-    // priority);
-
-    auto message = receiveMessage<Messages::PlaneHasLeft>("FromTowerToAirport", receivedMessage);
+    auto message = receiveMessage<Messages::PlaneHasLeft>("FromTowerToAirport",
+                                                          receivedMessage);
 
     if (receivedMessage)
     {

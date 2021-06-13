@@ -8,21 +8,19 @@
 class timer
 {
 private:
-    std::chrono::_V2::system_clock::time_point start;
-    std::chrono::_V2::system_clock::time_point end;
-public:
+  std::chrono::_V2::system_clock::time_point start;
+  std::chrono::_V2::system_clock::time_point end;
 
-    timer()
-    {
-        start = std::chrono::high_resolution_clock::now();
-    };
-    
-    ~timer()
-    {
-        end = std::chrono::high_resolution_clock::now();
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "Elapsed time: " << elapsed_time.count() << std::endl;
-    };
+public:
+  timer() { start = std::chrono::high_resolution_clock::now(); };
+
+  ~timer()
+  {
+    end = std::chrono::high_resolution_clock::now();
+    auto elapsed_time =
+        std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+    std::cout << "Elapsed time: " << elapsed_time.count() << "ns" << std::endl;
+  };
 };
 
 #else
@@ -30,8 +28,8 @@ class timer
 {
 private:
 public:
-    timer();
-    ~timer();
+  timer();
+  ~timer();
 };
 
 #endif /*DEBUG*/

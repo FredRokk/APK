@@ -7,7 +7,7 @@ OBJECTS = $(addprefix $(OBJ_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.o
 DEPS = $(addprefix $(DEP_DIR), $(SOURCES:$(suffix $(firstword $(SOURCES)))=.d))
 
 EXE = $(BIN_DIR)prog.exe
-CXXFLAGS = -g -O0 -lrt -Iinclude -ggdb -I/usr/include/boost -lboost_thread -pthread -lpthread -lboost_system -Wfatal-errors# Compiler flags
+CXXFLAGS = -g -O0 -lrt -Iinclude -ggdb -I/usr/include/boost -lboost_thread -pthread -lpthread -lboost_system #-Wfatal-errors# Compiler flags
 
 # Making for host (Linux)
 # > make ARCH=host

@@ -62,6 +62,7 @@
         "variant": "cpp",
         "csignal": "cpp",
         "codecvt": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "shared_mutex": "cpp"
     }
 }

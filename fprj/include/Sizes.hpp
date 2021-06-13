@@ -3,9 +3,9 @@
 
 enum sizes
 {
-    small,
-    medium,
-    big
+  small,
+  medium,
+  big
 };
 
 #endif
